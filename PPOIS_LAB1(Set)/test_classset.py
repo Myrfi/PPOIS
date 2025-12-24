@@ -539,7 +539,7 @@ class TestClassSet:
         assert str_repr.startswith('{')
         assert str_repr.endswith('}')
         assert 'a' in str_repr
-        assert '{' in str_repr  # Should contain nested set representation
+        assert '{' in str_repr  
 
     def test_str_empty(self):
         s = ClassSet()
@@ -571,13 +571,13 @@ class TestClassSet:
         assert len(temp) == 4
 
     def test_string_parsing_with_quotes_inside(self):
-        # Парсер не учитывает кавычки при разбиении, поэтому запятая внутри строки создаёт отдельные элементы
+       
         s = ClassSet('{"hello, world", "test"}')
-        # Строка разбивается на: '"hello', 'world"', 'test' -> 3 элемента
+       
         assert len(s) == 3
-        assert '"hello' in s  # Первая часть до запятой
-        assert 'world"' in s  # Вторая часть после запятой
-        assert 'test' in s  # Последняя часть
+        assert '"hello' in s  
+        assert 'world"' in s  
+        assert 'test' in s  
 
     def test_string_parsing_with_spaces_and_quotes(self):
         s = ClassSet("{ 'hello' , 'world' }")
@@ -589,7 +589,6 @@ class TestClassSet:
         nested1 = ClassSet(['1', '2'])
         nested2 = ClassSet(['2', '1'])
         s = ClassSet()
-        # This tests the _are_equal method indirectly through add
         s.add(nested1)
         assert nested2 in s
 
@@ -608,7 +607,6 @@ class TestClassSet:
 
     def test_find_element_index_not_found(self):
         s = ClassSet(['a', 'b'])
-        # This tests _find_element_index indirectly
         assert 'c' not in s
 
     def test_string_parsing_trailing_comma(self):
@@ -633,7 +631,6 @@ if __name__ == "__main__":
         "--cov-branch"
     ])
     
-    # Дополнительный вывод покрытия в процентах
     try:
         import subprocess
         result = subprocess.run(
@@ -644,9 +641,8 @@ if __name__ == "__main__":
         if result.returncode == 0:
             lines = result.stdout.strip().split('\n')
             if len(lines) >= 2:
-                total_line = lines[-1]  # Последняя строка содержит итоговую статистику
+                total_line = lines[-1]  
                 if 'TOTAL' in total_line or 'ClassSet.py' in total_line:
-                    # Извлекаем процент покрытия
                     parts = total_line.split()
                     for i, part in enumerate(parts):
                         if '%' in part:
@@ -655,6 +651,6 @@ if __name__ == "__main__":
                             print(f"{'='*60}")
                             break
     except Exception:
-        pass  # Если coverage не установлен, пропускаем
+        pass  
     
     sys.exit(exit_code)
