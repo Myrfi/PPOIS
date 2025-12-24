@@ -111,8 +111,10 @@ class RubiksCube:
 
     def rotate_face(self, face, direction=1):
         if self.animating:
+            print(f"Поворот {face} пропущен - идет анимация")
             return
 
+        print(f"Начинаем поворот {face}, направление: {direction}")
         self.animating = True
         self.animation_angle = 0
         self.target_angle = 90 * direction
@@ -268,53 +270,89 @@ class RubiksCube:
         glEnd()
 
     def handle_events(self):
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                return False
-
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
+        try:
+            events = pygame.event.get()
+            if not events:
+                return True
+                
+            for event in events:
+                if event.type == pygame.QUIT:
                     return False
-                elif event.key == pygame.K_r:
-                    self.reset_cube()
-                elif event.key == pygame.K_s:
-                    self.scramble()
-                elif event.key == pygame.K_l:
-                    self.load_from_file("cube_state.txt")
-                elif event.key == pygame.K_p:
-                    self.save_to_file("cube_state.txt")
-                # Управление поворотами
-                elif event.key == pygame.K_f:
-                    self.rotate_face('F', 1)
-                elif event.key == pygame.K_b:
-                    self.rotate_face('B', 1)
-                elif event.key == pygame.K_u:
-                    self.rotate_face('U', 1)
-                elif event.key == pygame.K_d:
-                    self.rotate_face('D', 1)
-                elif event.key == pygame.K_l:
-                    self.rotate_face('L', 1)
-                elif event.key == pygame.K_r:
-                    self.rotate_face('R', 1)
-                # Против часовой стрелки (с Shift)
-                elif event.key == pygame.K_F and pygame.key.get_mods() & pygame.KMOD_SHIFT:
-                    self.rotate_face('F', -1)
-                elif event.key == pygame.K_B and pygame.key.get_mods() & pygame.KMOD_SHIFT:
-                    self.rotate_face('B', -1)
-                elif event.key == pygame.K_U and pygame.key.get_mods() & pygame.KMOD_SHIFT:
-                    self.rotate_face('U', -1)
-                elif event.key == pygame.K_D and pygame.key.get_mods() & pygame.KMOD_SHIFT:
-                    self.rotate_face('D', -1)
-                elif event.key == pygame.K_L and pygame.key.get_mods() & pygame.KMOD_SHIFT:
-                    self.rotate_face('L', -1)
-                elif event.key == pygame.K_R and pygame.key.get_mods() & pygame.KMOD_SHIFT:
-                    self.rotate_face('R', -1)
 
-            elif event.type == pygame.MOUSEMOTION:
-                if pygame.mouse.get_pressed()[0]:
-                    rel_x, rel_y = event.rel
-                    self.rotation_y += rel_x * 0.5
-                    self.rotation_x += rel_y * 0.5
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        return False
+                    
+                    # Проверяем модификаторы для различения команд и поворотов
+                    mods = pygame.key.get_mods()
+                    shift_pressed = bool(mods & pygame.KMOD_SHIFT)
+                    print(f"Нажата клавиша: {event.key}, Shift: {shift_pressed}, Анимируется: {self.animating}")
+                    
+                    # Команды управления (без Shift)
+                    if not shift_pressed:
+                        if event.key == pygame.K_r:
+                            print("Сброс кубика")
+                            self.reset_cube()
+                        elif event.key == pygame.K_s:
+                            print("Перемешивание")
+                            self.scramble()
+                        elif event.key == pygame.K_l:
+                            print("Загрузка файла")
+                            self.load_from_file("cube_state.txt")
+                        elif event.key == pygame.K_p:
+                            print("Сохранение файла")
+                            self.save_to_file("cube_state.txt")
+                        # Повороты по часовой (без Shift)
+                        elif event.key == pygame.K_f:
+                            print("Поворот F")
+                            self.rotate_face('F', 1)
+                        elif event.key == pygame.K_b:
+                            print("Поворот B")
+                            self.rotate_face('B', 1)
+                        elif event.key == pygame.K_u:
+                            print("Поворот U")
+                            self.rotate_face('U', 1)
+                        elif event.key == pygame.K_d:
+                            print("Поворот D")
+                            self.rotate_face('D', 1)
+                        elif event.key == pygame.K_q:  # Используем Q для L
+                            print("Поворот L")
+                            self.rotate_face('L', 1)
+                        elif event.key == pygame.K_e:  # Используем E для R
+                            print("Поворот R")
+                            self.rotate_face('R', 1)
+                    
+                    # Повороты против часовой (с Shift)
+                    elif shift_pressed:
+                        if event.key == pygame.K_f:
+                            print("Поворот F'")
+                            self.rotate_face('F', -1)
+                        elif event.key == pygame.K_b:
+                            print("Поворот B'")
+                            self.rotate_face('B', -1)
+                        elif event.key == pygame.K_u:
+                            print("Поворот U'")
+                            self.rotate_face('U', -1)
+                        elif event.key == pygame.K_d:
+                            print("Поворот D'")
+                            self.rotate_face('D', -1)
+                        elif event.key == pygame.K_q:  # Shift+Q для L'
+                            print("Поворот L'")
+                            self.rotate_face('L', -1)
+                        elif event.key == pygame.K_e:  # Shift+E для R'
+                            print("Поворот R'")
+                            self.rotate_face('R', -1)
+
+                elif event.type == pygame.MOUSEMOTION:
+                    if pygame.mouse.get_pressed()[0]:
+                        rel_x, rel_y = event.rel
+                        self.rotation_y += rel_x * 0.5
+                        self.rotation_x += rel_y * 0.5
+        except Exception as e:
+            print(f"Ошибка обработки событий: {e}")
+            import traceback
+            traceback.print_exc()
+            return True  # Продолжаем работу даже при ошибке
 
         return True
 
@@ -322,6 +360,7 @@ class RubiksCube:
         if self.animating:
             self.animation_angle += 5 * self.rotation_direction
             if abs(self.animation_angle) >= abs(self.target_angle):
+                print(f"Завершаем анимацию поворота {self.rotation_face}")
                 self.apply_rotation()
 
     def run(self):
@@ -329,20 +368,26 @@ class RubiksCube:
         running = True
 
         print("Управление:")
-        print("F, B, U, D, L, R - поворот граней по часовой")
-        print("Shift+F, Shift+B и т.д. - поворот против часовой")
+        print("F, B, U, D, Q (L), E (R) - поворот граней по часовой")
+        print("Shift+F, Shift+B, Shift+U, Shift+D, Shift+Q, Shift+E - поворот против часовой")
         print("R - сброс, S - перемешать, L - загрузить, P - сохранить")
         print("ESC - выход")
         print("ЛКМ + движение - вращение камеры")
 
         while running:
-            running = self.handle_events()
-            self.update_animation()
-            self.draw_cube()
+            try:
+                running = self.handle_events()
+                self.update_animation()
+                self.draw_cube()
 
-            if self.is_solved():
-                print("Кубик собран!")
+                if self.is_solved():
+                    print("Кубик собран!")
 
-            clock.tick(60)
+                clock.tick(60)
+            except Exception as e:
+                print(f"Ошибка в основном цикле: {e}")
+                import traceback
+                traceback.print_exc()
+                break
 
         pygame.quit()
